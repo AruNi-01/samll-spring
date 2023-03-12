@@ -19,11 +19,13 @@ public class ApiTest {
         // 1. 初始化 BeanFactory
         BeanFactory beanFactory = new BeanFactory();
 
-        // 2. 注册 bean
+        // 创建 BeanDefinition
         BeanDefinition beanDefinition = new BeanDefinition(new UserService());
+
+        // 2. 注册 bean
         beanFactory.registerBeanDefinition("userService", beanDefinition);
 
-        // 获取 bean
+        // 3. 获取 bean
         UserService userService = (UserService) beanFactory.getBean("userService");
         userService.queryUserInfo();
 
