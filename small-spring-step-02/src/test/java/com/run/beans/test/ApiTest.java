@@ -19,18 +19,18 @@ public class ApiTest {
         // 1. 初始化 BeanFactory
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 
-        // 2. 注册 bean
         // 这里直接把 UserService.class 传递给了 BeanDefinition，而不是像上次那样直接 new UserService()
         BeanDefinition beanDefinition = new BeanDefinition(UserService.class);
+
+        // 2. 注册 bean
         beanFactory.registerBeanDefinition("userService", beanDefinition);
 
         // 3. 第一次获取 bean
         UserService userService = (UserService) beanFactory.getBean("userService");
         userService.queryUserInfo();
         // 4. 第二次获取 bean from Singleton
-        //UserService userService_singleton = (UserService) beanFactory.getBean("userService");
-        //userService_singleton.queryUserInfo();
-
+        UserService userService_singleton = (UserService) beanFactory.getBean("userService");
+        userService_singleton.queryUserInfo();
     }
 
 }
