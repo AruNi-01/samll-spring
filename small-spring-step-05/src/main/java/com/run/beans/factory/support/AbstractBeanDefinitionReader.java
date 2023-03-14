@@ -5,7 +5,7 @@ import com.run.core.io.ResourceLoader;
 
 /**
  * @desc: BeanDefinitionReader 抽象类，把 BeanDefinitionReader 接口的前两个方法全部实现了，
- * 并提供了构造函数，让外部的使用者把 Bean 定义注入类，传递进来。
+ * 并提供了构造函数，让外部的使用者把 BeanDefinitionRegistry 传递进来。
  *
  * 在接口 BeanDefinitionReader 的具体实现类中，就可以通过 getRegistry() 方法获取 BeanDefinitionRegistry 接口，
  * 调用对应的注册方法把解析后的 XML 文件中的 Bean 信息，注册到 Spring 容器去了。

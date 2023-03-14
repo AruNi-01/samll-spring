@@ -8,6 +8,7 @@ import com.run.beans.factory.BeanFactory;
 import com.run.beans.factory.config.BeanDefinition;
 import com.run.beans.factory.config.BeanReference;
 import com.run.beans.factory.support.DefaultListableBeanFactory;
+import com.run.beans.factory.xml.XmlBeanDefinitionReader;
 import com.run.core.io.DefaultResourceLoader;
 import com.run.core.io.Resource;
 import com.run.test.bean.UserDao;
@@ -57,10 +58,26 @@ public class ApiTest {
 
     @Test
     public void test_url() throws IOException {
-        Resource resource = resourceLoader.getResource("https://github.com/AruNi-01/small-spring/tree/main/small-spring-step-05/src/test/resources/important.properties");
+        // 读取后可以从内容中搜索关键字；OLpj9823dZ
+        Resource resource = resourceLoader.getResource("https://github.com/AruNi-01/small-spring/blob/main/small-spring-step-05/src/test/resources/important.properties");
         InputStream inputStream = resource.getInputStream();
         String content = IoUtil.readUtf8(inputStream);
         System.out.println(content);
+    }
+
+    @Test
+    public void test_xml() {
+        // 1. 初始化 beanFactory
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+
+        // 2. 读取配置文件 & 注册 Bean
+        XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
+        reader.loadBeanDefinitions("classpath:spring.xml");
+
+        // 3. 获取 Bean 对象调用方法
+        UserService userService = (UserService) beanFactory.getBean("userService", UserService.class);
+        userService.queryUserInfo();
+
     }
 
     // 测试

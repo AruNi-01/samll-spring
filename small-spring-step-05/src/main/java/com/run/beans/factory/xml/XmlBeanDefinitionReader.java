@@ -107,7 +107,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
             if (getRegistry().containsBeanDefinition(beanName)) {
                 throw new BeansException("Duplicate beanName[" + beanName + "] is not allowed");
             }
-            // 注册 Bean
+
+            // 注册 Bean，beanDefinition 中有 PropertyValues，在执行 beanFactory.getBean() 时，
+            // 就会在创建 Bean 时（实例化 Bean 之后）进行依赖属性的填充。
             getRegistry().registerBeanDefinition(beanName, beanDefinition);
         }
     }

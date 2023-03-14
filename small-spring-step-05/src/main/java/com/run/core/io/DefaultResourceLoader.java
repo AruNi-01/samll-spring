@@ -7,8 +7,7 @@ import java.net.URL;
 
 /**
  * @desc: 实现 ResourceLoader，实现 getResource() 方法：
- * 具体实现根据不同类型的资源返回不同的 Resource 类型，
- * 该方法供外部调用。
+ * 具体实现根据不同类型的资源返回不同的 Resource 类型。
  * @author: AruNi_Lu
  * @date: 2023/3/14
  */
