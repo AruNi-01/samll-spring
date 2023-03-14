@@ -32,6 +32,7 @@ import java.util.prefs.BackingStoreException;
 @SpringBootTest(classes = ApiTest.class)
 public class ApiTest {
 
+    // DefaultResourceLoader，用于获取资源
     private DefaultResourceLoader resourceLoader;
 
     @Before
@@ -77,7 +78,6 @@ public class ApiTest {
         // 3. 获取 Bean 对象调用方法
         UserService userService = (UserService) beanFactory.getBean("userService", UserService.class);
         userService.queryUserInfo();
-
     }
 
     // 测试

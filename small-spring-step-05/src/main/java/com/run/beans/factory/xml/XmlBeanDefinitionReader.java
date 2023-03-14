@@ -36,6 +36,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
     @Override
     public void loadBeanDefinitions(Resource resource) throws BeansException {
+        // 先获取该资源的输入流，再调用 doLoadBeanDefinitions() 方法做具体的解析、注册 Bean
         try {
             try (InputStream inputStream = resource.getInputStream()) {
                 doLoadBeanDefinitions(inputStream);
@@ -59,7 +60,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
         loadBeanDefinitions(resource);
     }
 
-    // 负责解析 XML，可以对照一份 spring.xml 文件理解。其实就是解析出文件中的 bean，名字，值等信息
+    // 具体的解析 XML、注册 Bean（可以对照一份 spring.xml 文件理解，其实就是解析出文件中的 bean，名字，值等信息)
     protected void doLoadBeanDefinitions(InputStream inputStream) throws ClassNotFoundException {
         Document doc = XmlUtil.readXML(inputStream);
         Element root = doc.getDocumentElement();
