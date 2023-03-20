@@ -1,8 +1,12 @@
 package com.run.beans.factory.support;
 
 import com.run.beans.BeansException;
-import com.run.beans.factory.BeanFactory;
 import com.run.beans.factory.config.BeanDefinition;
+import com.run.beans.factory.config.BeanPostProcessor;
+import com.run.beans.factory.config.ConfigurableBeanFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @desc: 抽象的 bean 工厂类，定义模板方法：
@@ -13,7 +17,10 @@ import com.run.beans.factory.config.BeanDefinition;
  * @date: 2023/3/8
  */
 public abstract class AbstractBeanFactory
-        extends DefaultSingletonBeanRegistry implements BeanFactory {
+        extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
+
+    // 提供 BeanPostProcessor 容器
+    private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
 
     // 模板方法：获取 bean 的流程，具体的获取 BeanDefinition 和创建 bean 都由子类具体实现
 
@@ -27,6 +34,12 @@ public abstract class AbstractBeanFactory
     @Override
     public Object getBean(String name, Object... args) throws BeansException {
         return doGetBean(name, args);
+    }
+
+    // 根据类型获取 Bean
+    @Override
+    public <T> T getBean(String name, Class<T> requiredType) throws BeansException {
+        return (T) getBean(name);
     }
 
     /**
@@ -54,4 +67,15 @@ public abstract class AbstractBeanFactory
     // 创建 bean 实例，添加参数
     protected abstract Object createBean(String beanName, BeanDefinition beanDefinition, Object[] args) throws BeansException;
 
+
+    // 提供向 BeanPostProcessor 容器中存取 BeanPostProcessor 的方法
+    @Override
+    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+        this.beanPostProcessors.remove(beanPostProcessor);
+        this.beanPostProcessors.add(beanPostProcessor);
+    }
+
+    public List<BeanPostProcessor> getBeanPostProcessors() {
+        return this.beanPostProcessors;
+    }
 }

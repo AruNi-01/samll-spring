@@ -9,11 +9,16 @@ public class UserService {
 
     private String uId;
 
+    // 新增加了 company、location，两个属性信息，便于测试 BeanPostProcessor、
+    // BeanFactoryPostProcessor 两个接口对 Bean 属性信息扩展的作用。
+    private String company;
+    private String location;
+
     // 依赖 UserDao
     private UserDao userDao;
 
-    public void queryUserInfo() {
-        System.out.println("查询用户信息：" + userDao.queryUserName(uId));
+    public String queryUserInfo() {
+        return userDao.queryUserName(uId) + "，公司：" + company + "，地点：" + location;
     }
 
     public String getuId() {
@@ -30,5 +35,13 @@ public class UserService {
 
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

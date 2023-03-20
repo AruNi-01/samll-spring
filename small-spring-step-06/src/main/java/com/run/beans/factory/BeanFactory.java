@@ -13,7 +13,10 @@ public interface BeanFactory {
 
     Object getBean(String name) throws BeansException;
 
-    // 新增含有参数的 getBean 方法，方便实例化含有参数的 Bean 对象
+    // 含有参数的 getBean 方法，方便实例化含有参数的 Bean 对象
     Object getBean(String name, Object... args) throws BeansException;
+
+    // 根据类型获取 Bean
+    <T> T getBean(String name, Class<T> requiredType) throws BeansException;
 
 }
