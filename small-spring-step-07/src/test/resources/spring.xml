@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+
+    <!--  注入 userDao  -->
+    <bean id="userDao" class="com.run.test.bean.UserDao"/>
+
+    <!--  注入 userService，并且把它依赖的 uId 和 userDao 进行属性填充 -->
+    <bean id="userService" class="com.run.test.bean.UserService">
+        <property name="uId" value="10001"/>
+        <property name="company" value="腾讯"/>
+        <property name="location" value="深圳"/>
+        <!-- userDao 指向上面的 userDao 这个 bean -->
+        <property name="userDao" ref="userDao"/>
+    </bean>
+
+</beans>
