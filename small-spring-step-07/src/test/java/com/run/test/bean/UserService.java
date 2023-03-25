@@ -1,11 +1,14 @@
 package com.run.test.bean;
 
+import com.run.beans.factory.DisposableBean;
+import com.run.beans.factory.InitializingBean;
+
 /**
  * @desc:
  * @author: AruNi_Lu
  * @date: 2023/3/8
  */
-public class UserService {
+public class UserService implements InitializingBean, DisposableBean {
 
     private String uId;
 
@@ -16,6 +19,16 @@ public class UserService {
 
     // 依赖 UserDao
     private UserDao userDao;
+
+    @Override
+    public void destroy() throws Exception {
+        System.out.println("执行 UserService.destroy");
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        System.out.println("执行 UserService.afterPropertiesSet");
+    }
 
     public String queryUserInfo() {
         return userDao.queryUserName(uId) + "，公司：" + company + "，地点：" + location;
@@ -44,4 +57,5 @@ public class UserService {
     public void setLocation(String location) {
         this.location = location;
     }
+
 }

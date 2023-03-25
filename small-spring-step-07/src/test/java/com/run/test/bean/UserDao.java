@@ -12,11 +12,17 @@ public class UserDao {
 
     private static Map<String, String> map = new HashMap<>();
 
-    // 模拟数据库中的数据
-    static {
+
+    public void initDataMethod() {
+        System.out.println("userDao 执行 init-method");
         map.put("10001", "孙悟空");
         map.put("10002", "猪八戒");
         map.put("10003", "沙悟净");
+    }
+
+    public void destroyDataMethod() {
+        System.out.println("userDao 执行 destroy-method");
+        map.clear();
     }
 
     public String queryUserName(String uId) {

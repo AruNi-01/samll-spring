@@ -1,9 +1,12 @@
 package com.run.beans.factory.support;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.run.beans.BeansException;
 import com.run.beans.PropertyValue;
 import com.run.beans.PropertyValues;
+import com.run.beans.factory.DisposableBean;
+import com.run.beans.factory.InitializingBean;
 import com.run.beans.factory.config.AutowireCapableBeanFactory;
 import com.run.beans.factory.config.BeanDefinition;
 import com.run.beans.factory.config.BeanPostProcessor;
@@ -11,6 +14,7 @@ import com.run.beans.factory.config.BeanReference;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.file.Watchable;
 
 /**
@@ -43,6 +47,9 @@ public abstract class AbstractAutowireCapableBeanFactory
         } catch (Exception e) {
             throw new BeansException("Instantiation of bean failed", e);
         }
+
+        // 注册有销毁方法的 Bean 对象
+        registerDisposableBeanIfNecessary(beanName, bean, beanDefinition);
 
         // 创建后加入到单例容器缓存中
         addSingleton(beanName, bean);
@@ -118,16 +125,48 @@ public abstract class AbstractAutowireCapableBeanFactory
         // 1. 执行 BeanPostProcessor Before 处理
         Object wrappedBean = applyBeanPostProcessorsBeforeInitialization(bean, beanName);
 
-        // 待完成内容：invokeInitMethods(beanName, wrappedBean, beanDefinition);
-        invokeInitMethods(beanName, wrappedBean, beanDefinition);
+        // 执行 Bean 对象的初始化方法
+        try {
+            invokeInitMethods(beanName, wrappedBean, beanDefinition);
+        } catch (Exception e) {
+            throw new BeansException("Invocation of init method of bean[" + beanName + "] failed", e);
+        }
 
         // 2. 执行 BeanPostProcessor After 处理
         wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
         return wrappedBean;
     }
 
-    private void invokeInitMethods(String beanName, Object wrappedBean, BeanDefinition beanDefinition) {
+    // Bean 对象的初始化方法
+    private void invokeInitMethods(String beanName, Object bean, BeanDefinition beanDefinition) throws Exception {
+        // 方式一：实现了接口 InitializingBean
+        if (bean instanceof InitializingBean) {
+            ((InitializingBean) bean).afterPropertiesSet();
+        }
 
+        // 方式二：xml 文件中的 init-method
+        String initMethodName = beanDefinition.getInitMethodName();
+        if (StrUtil.isNotEmpty(initMethodName)) {
+            Method initMethod = beanDefinition.getBeanClass().getMethod(initMethodName);
+            if (null == initMethod) {
+                throw new BeansException("Could not find an init method named '" + initMethodName + "' on bean with name '" + beanName + "'");
+            }
+            // 反射执行该方法
+            initMethod.invoke(bean);
+        }
+
+    }
+
+    /**
+     * 注册有销毁方法的 Bean 对象，分别为实现了 DisposableBean 接口或者
+     * 从 XML 中读取出来的 destroyMethodName 不为空的 Bean 对象。
+     * 注意：这里传入的是适配器 DisposableBeanAdapter，再调用时直接调用适配器
+     *      实现的 destroy() 方法即可，调用时不用考虑属于哪种方式。
+     */
+    private void registerDisposableBeanIfNecessary(String beanName, Object bean, BeanDefinition beanDefinition) {
+        if (bean instanceof DisposableBean || StrUtil.isNotEmpty(beanDefinition.getDestroyMethodName())) {
+            registerDisposableBean(beanName, new DisposableBeanAdapter(bean, beanName, beanDefinition));
+        }
     }
 
     // Bean 对象执行初始化前后的额外处理。
