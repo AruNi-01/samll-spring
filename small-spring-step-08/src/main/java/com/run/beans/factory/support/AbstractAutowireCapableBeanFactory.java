@@ -5,8 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.run.beans.BeansException;
 import com.run.beans.PropertyValue;
 import com.run.beans.PropertyValues;
-import com.run.beans.factory.DisposableBean;
-import com.run.beans.factory.InitializingBean;
+import com.run.beans.factory.*;
 import com.run.beans.factory.config.AutowireCapableBeanFactory;
 import com.run.beans.factory.config.BeanDefinition;
 import com.run.beans.factory.config.BeanPostProcessor;
@@ -122,7 +121,22 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     // 初始化 Bean
     private Object initializeBean(String beanName, Object bean, BeanDefinition beanDefinition) {
-        // 1. 执行 BeanPostProcessor Before 处理
+        // 写入需要被感知的 BeanFactory、BeanName 等，后续可直接获取。
+        // ApplicationContextAwareProcessor 已经在 refresh() 时被提前加入到 BeanPostProcessors 中了，
+        // 在下面的 applyBeanPostProcessorsBeforeInitialization() 中会取出来进行写入
+        if (bean instanceof Aware) {
+            if (bean instanceof BeanFactoryAware) {
+                ((BeanFactoryAware) bean).setBeanFactory(this);
+            }
+            if (bean instanceof BeanClassLoaderAware) {
+                ((BeanClassLoaderAware) bean).setBeanClassLoader(getBeanClassLoader());
+            }
+            if (bean instanceof BeanNameAware) {
+                ((BeanNameAware) bean).setBeanName(beanName);
+            }
+        }
+
+        // 1. 执行 BeanPostProcessor Before 处理（ApplicationContext 的写入在此方法中）
         Object wrappedBean = applyBeanPostProcessorsBeforeInitialization(bean, beanName);
 
         // 执行 Bean 对象的初始化方法

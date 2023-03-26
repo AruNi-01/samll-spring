@@ -1,33 +1,44 @@
 package com.run.test.bean;
 
-import com.run.beans.factory.DisposableBean;
-import com.run.beans.factory.InitializingBean;
+import com.run.beans.BeansException;
+import com.run.beans.factory.*;
+import com.run.context.ApplicationContext;
+import com.run.context.ApplicationContextAware;
 
 /**
  * @desc:
  * @author: AruNi_Lu
  * @date: 2023/3/8
  */
-public class UserService implements InitializingBean, DisposableBean {
+public class UserService implements BeanNameAware, BeanClassLoaderAware, ApplicationContextAware, BeanFactoryAware {
+
+    private ApplicationContext applicationContext;
+    private BeanFactory beanFactory;
 
     private String uId;
-
-    // 新增加了 company、location，两个属性信息，便于测试 BeanPostProcessor、
-    // BeanFactoryPostProcessor 两个接口对 Bean 属性信息扩展的作用。
     private String company;
     private String location;
-
-    // 依赖 UserDao
     private UserDao userDao;
 
+
     @Override
-    public void destroy() throws Exception {
-        System.out.println("执行 UserService.destroy");
+    public void setBeanName(String name) {
+        System.out.println("Bean Name is: " + name);
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        System.out.println("执行 UserService.afterPropertiesSet");
+    public void setBeanClassLoader(ClassLoader classLoader) {
+        System.out.println("ClassLoader: " + classLoader);
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 
     public String queryUserInfo() {
@@ -58,4 +69,19 @@ public class UserService implements InitializingBean, DisposableBean {
         this.location = location;
     }
 
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
+
+    public BeanFactory getBeanFactory() {
+        return beanFactory;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public String getLocation() {
+        return location;
+    }
 }

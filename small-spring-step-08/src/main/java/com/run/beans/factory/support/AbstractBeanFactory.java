@@ -4,6 +4,7 @@ import com.run.beans.BeansException;
 import com.run.beans.factory.config.BeanDefinition;
 import com.run.beans.factory.config.BeanPostProcessor;
 import com.run.beans.factory.config.ConfigurableBeanFactory;
+import com.run.utils.ClassUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,8 @@ public abstract class AbstractBeanFactory
 
     // 提供 BeanPostProcessor 容器
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
+
+    private ClassLoader beanClassLoader = ClassUtil.getDefaultClassLoader();
 
     // 模板方法：获取 bean 的流程，具体的获取 BeanDefinition 和创建 bean 都由子类具体实现
 
@@ -77,5 +80,9 @@ public abstract class AbstractBeanFactory
 
     public List<BeanPostProcessor> getBeanPostProcessors() {
         return this.beanPostProcessors;
+    }
+
+    public ClassLoader getBeanClassLoader() {
+        return this.beanClassLoader;
     }
 }
