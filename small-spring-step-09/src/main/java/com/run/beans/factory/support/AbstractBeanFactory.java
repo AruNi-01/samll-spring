@@ -1,6 +1,7 @@
 package com.run.beans.factory.support;
 
 import com.run.beans.BeansException;
+import com.run.beans.factory.FactoryBean;
 import com.run.beans.factory.config.BeanDefinition;
 import com.run.beans.factory.config.BeanPostProcessor;
 import com.run.beans.factory.config.ConfigurableBeanFactory;
@@ -11,14 +12,19 @@ import java.util.List;
 
 /**
  * @desc: 抽象的 bean 工厂类，定义模板方法：
- * 首先继承了 DefaultSingletonBeanRegistry，具备获取单例 bean 的方法注册添加单例 bean 的方法
+ *
+ * @old 首先继承了 DefaultSingletonBeanRegistry，具备获取单例 bean 的方法注册添加单例 bean 的方法。
+ *
+ * @new 把 AbstractBeanFactory 原来继承的 DefaultSingletonBeanRegistry，修改为继承 FactoryBeanRegistrySupport。
+ * 因为需要扩展出创建 FactoryBean 对象的能力
+ *
  * 然后又实现了 BeanFactory，所以实现了它的 getBean 方法，给出了 getBean 的具体流程，
  * 但是真正的获取 bean 和创建 bean 不在此类实现，而是通过模板方法模式由不同的子类具体实现。
  * @author: AruNi_Lu
  * @date: 2023/3/8
  */
 public abstract class AbstractBeanFactory
-        extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
+        extends FactoryBeanRegistrySupport implements ConfigurableBeanFactory {
 
     // 提供 BeanPostProcessor 容器
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
@@ -51,15 +57,43 @@ public abstract class AbstractBeanFactory
      * @param args 具体参数
      */
     protected <T> T doGetBean(final String name, final Object[] args) {
+        Object sharedInstance = getSingleton(name);
         // 能从单例 bean 缓存中获取 bean 则可直接返回
-        Object bean = getSingleton(name);
-        if (bean != null) {
-            return (T) bean;
+        if (sharedInstance != null) {
+            // 如果是 FactoryBean，则需要调用 FactoryBean#getObject()
+            return (T) getObjectForBeanInstance(sharedInstance, name);
         }
 
         // 创建 bean 并返回（先要获取 BeanDefinition）
         BeanDefinition beanDefinition = getBeanDefinition(name);
-        return (T) createBean(name, beanDefinition, args);
+        Object bean = createBean(name, beanDefinition, args);
+
+        // 如果是 FactoryBean，则需要调用 FactoryBean#getObject()
+        return (T) getObjectForBeanInstance(bean, name);
+    }
+
+    /**
+     * 抽取出一个方法来判断是否是 FactoryBean，然后再返回对应的 Bean 对象
+     * @param beanInstance
+     * @param beanName
+     * @return
+     */
+    private Object getObjectForBeanInstance(Object beanInstance, String beanName) {
+        // 如果不是 FactoryBean，直接返回即可
+        if (!(beanInstance instanceof FactoryBean)) {
+            return beanInstance;
+        }
+
+        // 先从 FactoryBean 缓存中获取（包括单例的缓存为空，以及原型模式）
+        Object object = getCachedObjectForFactoryBean(beanName);
+
+        // 如果缓存为空，则再调用 getObjectFromFactoryBean() 获取
+        if (object == null) {
+            FactoryBean<?> factoryBean = (FactoryBean<?>) beanInstance;
+            object = getObjectFromFactoryBean(factoryBean, beanName);
+        }
+
+        return object;
     }
 
 

@@ -16,6 +16,11 @@ import java.util.Map;
  */
 public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
+    /**
+     * 内部空单例对象的标志: 用作并发映射的标记值(不支持空值)。
+     */
+    protected static final Object NULL_OBJECT = new Object();
+
     // 单例容器缓存
     private Map<String, Object> singletonObjects = new HashMap<>();
 
