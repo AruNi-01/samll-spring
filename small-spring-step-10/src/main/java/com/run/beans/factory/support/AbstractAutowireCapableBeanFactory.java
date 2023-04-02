@@ -52,7 +52,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
         // 判断 Bean 的作用域，是单例模式才创建后加入到单例容器缓存中
         if (beanDefinition.isSingleton()) {
-            addSingleton(beanName, bean);
+            registerSingleton(beanName, bean);
         }
 
         return bean;

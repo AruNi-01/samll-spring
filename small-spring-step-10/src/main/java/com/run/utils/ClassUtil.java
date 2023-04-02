@@ -25,4 +25,15 @@ public class ClassUtil {
         return cl;
     }
 
+    /**
+     * 检查指定的类是否为 cglib 生成的类
+     */
+    public static boolean isCglibProxyClass(Class<?> clazz) {
+        return (clazz != null && isCglibProxyClassName(clazz.getName()));
+    }
+    public static boolean isCglibProxyClassName(String className) {
+        return (className != null && className.contains("$$"));
+    }
+
+
 }
